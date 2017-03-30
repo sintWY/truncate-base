@@ -19,6 +19,9 @@ public class ErrorCode
 	@ErrorMessage("数据库异常")
 	public static final int DB_ERROR = -200000;
 
+	@ErrorMessage("数据库[%s]未配置数据源")
+	public static final int DB_NOT_EXISTS_SOURCE = -200001;
+
 	/**网络级别异常**/
 	@ErrorMessage("网络异常")
 	public static final int NETWORK_ERROR = -300000;
@@ -53,4 +56,7 @@ public class ErrorCode
 
 	@ErrorMessage("您还没有登录")
 	public static final int NOT_LOGIN_ERROR = -900007;
+
+	@ErrorMessage("数据项必须大于%d")
+	public static final int NUMBER_MUST_EXCEED_ERROR = -900008;
 }
