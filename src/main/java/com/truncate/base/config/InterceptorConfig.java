@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * 描述: //TODO 类描述
+ * 描述: 拦截器配置文件加载
  * 版权: Copyright (c) 2017
  * 作者: truncate(wy940407@163.com)
  * 版本: 1.0 
