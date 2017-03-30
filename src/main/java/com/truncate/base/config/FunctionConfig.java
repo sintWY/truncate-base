@@ -53,7 +53,7 @@ public class FunctionConfig
 			String groupName = resourceElement.attributeValue("name");
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("加载功能号配置文件：{}", new String[] { refUrl });
+				logger.debug("加载功能号配置文件：{}", new Object[] { refUrl });
 			}
 			Document refDocument = XmlUtil.getDocumentFromClassPath(refUrl);
 			rootElement = refDocument.getRootElement();
