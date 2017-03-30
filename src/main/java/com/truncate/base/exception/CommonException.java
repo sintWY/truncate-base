@@ -42,8 +42,4 @@ public class CommonException extends RuntimeException
 		this.errorCode = errorCode;
 	}
 
-	public static void main(String[] args)
-	{
-		throw new CommonException(ErrorCode.EMPTY_ARGUMENT_ERROR, new String[] { "funcNo" });
-	}
 }
