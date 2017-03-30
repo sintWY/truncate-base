@@ -171,7 +171,7 @@ public class InterceptorConfig
 							}
 							else
 							{
-								logger.warn("功能号组[{}]配置的拦截器[{}]不存在!", new String[] { groupName, refInterceptorName });
+								logger.warn("功能号组[{}]配置的拦截器[{}]不存在!", new Object[] { groupName, refInterceptorName });
 							}
 						}
 					}
