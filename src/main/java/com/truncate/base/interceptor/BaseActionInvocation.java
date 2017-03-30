@@ -21,7 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
- * 描述: //TODO 类描述
+ * 描述: 基础请求执行对象
  * 版权: Copyright (c) 2017
  * 作者: truncate(wy940407@163.com)
  * 版本: 1.0 
