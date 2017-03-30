@@ -27,7 +27,6 @@ public class JsonUtil
 	 *@作者:truncate(wy940407@163.com)
 	 *@日期:2017/3/29
 	 *@时间:16:27
-	 *
 	 */
 	public static String toString(Object object)
 	{
@@ -47,7 +46,6 @@ public class JsonUtil
 	 *@作者:truncate(wy940407@163.com)
 	 *@日期:2017/3/29
 	 *@时间:16:27
-	 *
 	 */
 	public static <T extends Object> T toObject(String json, Class clazz)
 	{
