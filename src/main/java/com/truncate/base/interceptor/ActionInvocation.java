@@ -28,5 +28,5 @@ public interface ActionInvocation
 
 	int getFuncNo();
 
-	Map getParaMap();
+	RequestParam getRequestParam();
 }

@@ -51,6 +51,12 @@ public class CommonFuncServlet extends HttpServlet
 			resultVo.setErrorMessage(ErrorCodeManager.getErrorMessage(ErrorCode.SYS_ERROR));
 			logger.error("系统异常!", exception);
 		}
+		catch(Throwable throwable)
+		{
+			resultVo.setErrorNo(ErrorCode.SYS_ERROR);
+			resultVo.setErrorMessage(ErrorCodeManager.getErrorMessage(ErrorCode.SYS_ERROR));
+			logger.error("系统异常!", throwable);
+		}
 
 		write(resultVo, response);
 	}
@@ -60,7 +66,7 @@ public class CommonFuncServlet extends HttpServlet
 		PrintWriter writer = null;
 		try
 		{
-			response.setContentType("application/json;charset=utf-8");
+			response.setContentType("text/html");
 			writer = response.getWriter();
 			writer.write(JsonUtil.toString(resultVo.getResultMap()));
 			writer.flush();

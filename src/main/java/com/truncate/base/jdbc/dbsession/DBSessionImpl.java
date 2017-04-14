@@ -36,7 +36,7 @@ public class DBSessionImpl implements DBSession
 	private Connection connection;
 
 	//数据库类型
-	private Constant.DatabaseType databaseType;
+	private String databaseType;
 
 	public DBSessionImpl(Connection connection)
 	{

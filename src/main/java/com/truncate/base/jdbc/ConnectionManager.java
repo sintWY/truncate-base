@@ -1,6 +1,7 @@
 package com.truncate.base.jdbc;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.truncate.base.constant.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,18 +115,26 @@ public class ConnectionManager
 		}
 	}
 
-	public static DatabaseType getDatabaseType(Connection connection)
+	public static String getDatabaseType(Connection connection)
 	{
 		try
 		{
-			String productName = connection.getMetaData().getDatabaseProductName();
-			if("oracle".equalsIgnoreCase(productName))
+			String productName = connection.getMetaData().getDatabaseProductName().toLowerCase();
+			if("mysql".equalsIgnoreCase(productName))
 			{
-				return DatabaseType.ORACLE;
+				return Constant.DatabaseType.MYSQL;
 			}
-			else if("mysql".equalsIgnoreCase(productName))
+			else if("oracle".equalsIgnoreCase(productName))
 			{
-				return DatabaseType.MYSQL;
+				//				return Constant.DatabaseType.ORACLE;
+			}
+			else if("db2".equalsIgnoreCase(productName))
+			{
+				//				return Constant.DatabaseType.DB2;
+			}
+			else if("sqlserver".equalsIgnoreCase(productName))
+			{
+				//				return Constant.DatabaseType.SQLSERVER;
 			}
 			throw new JdbcException("暂不支持的数据库类型!");
 		}

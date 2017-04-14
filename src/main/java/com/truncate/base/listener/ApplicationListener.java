@@ -29,14 +29,7 @@ public class ApplicationListener implements ServletContextListener
 			logger.info("Application is start...");
 		}
 		ServletContext context = servletContextEvent.getServletContext();
-		Application.setServletContext(context);
-		Application.setRootPath(context.getRealPath("/"));
-		init();
-	}
-
-	public void init()
-	{
-
+		Application.init(context);
 	}
 
 	@Override

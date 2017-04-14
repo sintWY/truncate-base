@@ -5,7 +5,7 @@ import com.truncate.base.exception.ErrorCode;
 import com.truncate.base.interceptor.Interceptor;
 import com.truncate.base.util.ReflectUtil;
 import com.truncate.base.util.XmlUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.slf4j.Logger;

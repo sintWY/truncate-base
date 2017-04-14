@@ -1,10 +1,12 @@
 package com.truncate.base.function;
 
-import com.truncate.base.config.FunctionItem;
 import com.truncate.base.domain.ResultVo;
 import com.truncate.base.exception.CommonException;
 import com.truncate.base.exception.ErrorCode;
 import com.truncate.base.exception.ErrorCodeManager;
+import com.truncate.base.interceptor.RequestParam;
+import com.truncate.base.util.ConvertUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +30,14 @@ public abstract class BaseFunction implements Function
 
 	private HttpServletResponse response;
 
-	private FunctionItem functionItem;
+	private RequestParam requestParam;
 
 	protected ResultVo resultVo = new ResultVo();
 
 	@Override
-	public ResultVo execute(FunctionItem functionItem, HttpServletRequest request, HttpServletResponse response)
+	public ResultVo execute(HttpServletRequest request, HttpServletResponse response, RequestParam requestParam)
 	{
-		this.functionItem = functionItem;
+		this.requestParam = requestParam;
 		this.request = request;
 		this.response = response;
 		try
@@ -44,13 +46,13 @@ public abstract class BaseFunction implements Function
 		}
 		catch(CommonException commonException)
 		{
-			logger.error("请求功能号[{}]失败,错误代码：{},错误信息：{}", new Object[] { functionItem.getId(), resultVo.getErrorNo(), resultVo.getErrorMessage() });
+			logger.error("请求功能号[{}]失败,错误代码：{},错误信息：{}", new Object[] { requestParam.getFuncNo(), commonException.getErrorCode(), commonException.getMessage() });
 			resultVo.setErrorNo(commonException.getErrorCode());
 			resultVo.setErrorMessage(commonException.getMessage());
 		}
 		catch(Exception exception)
 		{
-			logger.error("请求功能号[{}]出现系统异常!", new Object[] { functionItem.getId() }, exception);
+			logger.error("请求功能号[{}]出现系统异常!", new Object[] { requestParam.getFuncNo() }, exception);
 			resultVo.setErrorNo(ErrorCode.SYS_ERROR);
 			resultVo.setErrorMessage(ErrorCodeManager.getErrorMessage(ErrorCode.SYS_ERROR));
 		}
@@ -69,8 +71,91 @@ public abstract class BaseFunction implements Function
 		return response;
 	}
 
-	public FunctionItem getFunctionItem()
+	public RequestParam getRequestParam()
 	{
-		return functionItem;
+		return requestParam;
+	}
+
+	protected String getStrParameter(String name)
+	{
+		return getStrParameter(name, "");
+	}
+
+	/**
+	 *@描述：返回参数值
+	 *@作者:truncate(wy940407@163.com)
+	 *@日期:2017/4/1
+	 *@时间:10:55
+	 *
+	 */
+	protected String getStrParameter(String name, String defaultValue)
+	{
+		String value = requestParam.getValue(name);
+		if(StringUtils.isEmpty(value))
+		{
+			logger.warn("参数[{}]传入得值为空,返回默认值[{}]!", new Object[] { name, defaultValue });
+			return defaultValue;
+		}
+		return value;
+	}
+
+	/**
+	 *@描述：获取int值
+	 *@作者:truncate(wy940407@163.com)
+	 *@日期:2017/4/1
+	 *@时间:10:58
+	 *
+	 */
+	protected int getIntParameter(String name, int defaultValue)
+	{
+		String value = getStrParameter(name, String.valueOf(defaultValue));
+		return ConvertUtil.str2Int(value);
+	}
+
+	protected int getIntParameter(String name)
+	{
+		return getIntParameter(name, 0);
+	}
+
+	public long getLongParameter(String name, long defaultValue)
+	{
+		String value = getStrParameter(name, String.valueOf(defaultValue));
+		return ConvertUtil.str2Long(value);
+	}
+
+	public long getLongParameter(String name)
+	{
+		return getLongParameter(name, 0L);
+	}
+
+	protected double getDoubleParameter(String name, double defaultValue)
+	{
+		String value = getStrParameter(name, String.valueOf(defaultValue));
+		return ConvertUtil.str2Double(value);
+	}
+
+	protected double getDoubleParameter(String name)
+	{
+		return getDoubleParameter(name, 0.0D);
+	}
+
+	public String getAndCheckParameter(String name)
+	{
+		String value = getStrParameter(name);
+		if(StringUtils.isEmpty(value))
+		{
+			throw new CommonException(ErrorCode.EMPTY_ARGUMENT_ERROR, new Object[] { name });
+		}
+		return value;
+	}
+
+	protected String getRequestIp()
+	{
+		return requestParam.getRequestIp();
+	}
+
+	protected String getSerialNo()
+	{
+		return requestParam.getSerialNo();
 	}
 }

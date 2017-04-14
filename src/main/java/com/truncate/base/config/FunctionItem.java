@@ -1,5 +1,6 @@
 package com.truncate.base.config;
 
+import com.truncate.base.constant.Constant;
 import com.truncate.base.interceptor.Interceptor;
 
 import java.util.LinkedHashSet;
@@ -19,7 +20,7 @@ public class FunctionItem
 	private int id;
 
 	//类型
-	private int type;
+	private String functionType;
 
 	//实现类名称
 	private String className;
@@ -43,14 +44,14 @@ public class FunctionItem
 		this.id = id;
 	}
 
-	public int getType()
+	public String getFunctionType()
 	{
-		return type;
+		return functionType;
 	}
 
-	public void setType(int type)
+	public void setFunctionType(String functionType)
 	{
-		this.type = type;
+		this.functionType = functionType;
 	}
 
 	public String getClassName()

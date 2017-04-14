@@ -1,7 +1,6 @@
 package com.truncate.base.interceptor;
 
 import com.truncate.base.domain.ResultVo;
-import com.truncate.base.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,11 +23,13 @@ public class ParamInterceptor implements Interceptor
 	public ResultVo intercept(ActionInvocation actionInvocation)
 	{
 		logger.info("进入参数拦截器...");
-		Map<String, String> paraMap = actionInvocation.getParaMap();
+		Map<String, String> paraMap = actionInvocation.getRequestParam().getParaMap();
 		int funcNo = actionInvocation.getFuncNo();
+		String serialNo = actionInvocation.getRequestParam().getSerialNo();
+		String requestIp = actionInvocation.getRequestParam().getRequestIp();
 		if(logger.isInfoEnabled())
 		{
-			logger.info("功能号[{}]的入参为：{}", funcNo, JsonUtil.toString(paraMap));
+			logger.info("请求头:[serialNo={},requestIp={}],功能号:[{}],入参:[{}]", new Object[] { serialNo, requestIp, funcNo, paraMap });
 		}
 		return actionInvocation.invoke();
 	}

@@ -1,7 +1,9 @@
 package com.truncate.base.config;
 
+import com.truncate.base.constant.Constant;
+import com.truncate.base.exception.CommonException;
 import com.truncate.base.util.XmlUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.slf4j.Logger;
@@ -53,11 +55,18 @@ public class FunctionConfig
 			String groupName = resourceElement.attributeValue("name");
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("加载功能号配置文件：{}", new Object[] { refUrl });
+				logger.debug("加载功能号配置文件：[{}]", new Object[] { refUrl });
 			}
-			Document refDocument = XmlUtil.getDocumentFromClassPath(refUrl);
-			rootElement = refDocument.getRootElement();
-			loadFunctionElement(rootElement, groupName);
+			try
+			{
+				Document refDocument = XmlUtil.getDocumentFromClassPath(refUrl);
+				rootElement = refDocument.getRootElement();
+				loadFunctionElement(rootElement, groupName);
+			}
+			catch(CommonException e)
+			{
+				logger.warn("读取文件错误!", e);
+			}
 		}
 	}
 
@@ -69,7 +78,7 @@ public class FunctionConfig
 		for(Element functionElement : functionElements)
 		{
 			int id = Integer.valueOf(functionElement.attributeValue("id"));
-			int type = Integer.valueOf(functionElement.attributeValue("type"));
+			String type = functionElement.attributeValue("type");
 			String thirdNoStr = functionElement.attributeValue("thirdNo");
 			int thirdNo = StringUtils.isEmpty(thirdNoStr) ? id : Integer.valueOf(thirdNoStr);
 			String className = functionElement.attributeValue("class");
@@ -77,14 +86,21 @@ public class FunctionConfig
 
 			FunctionItem item = new FunctionItem();
 			item.setId(id);
-			item.setType(type);
+			if(Constant.FunctionType.LOCAL.equals(type))
+			{
+				item.setFunctionType(Constant.FunctionType.LOCAL);
+			}
+			else if(Constant.FunctionType.THIRD.equals(type))
+			{
+				item.setFunctionType(Constant.FunctionType.THIRD);
+			}
 			item.setClassName(className);
 			item.setThirdNo(thirdNo);
 			item.setDescription(description);
 
 			if(logger.isDebugEnabled())
 			{
-				logger.debug("功能号{}加载完成!", new Object[] { id });
+				logger.debug("功能号[{}]加载完成!", new Object[] { id });
 			}
 
 			FUNCTION_MAP.put(id, item);

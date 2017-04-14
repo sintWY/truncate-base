@@ -2,15 +2,14 @@ package com.truncate.base.interceptor;
 
 import com.truncate.base.config.FunctionConfig;
 import com.truncate.base.config.FunctionItem;
-import com.truncate.base.constant.ControlConstant;
+import com.truncate.base.constant.Constant;
 import com.truncate.base.domain.ResultVo;
 import com.truncate.base.exception.CommonException;
 import com.truncate.base.exception.ErrorCode;
 import com.truncate.base.function.Function;
-import com.truncate.base.util.JsonUtil;
+import com.truncate.base.util.ConvertUtil;
 import com.truncate.base.util.ReflectUtil;
-import com.truncate.base.util.RequestUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 
 /**
  * 描述: 基础请求执行对象
@@ -41,8 +39,6 @@ public class BaseActionInvocation implements ActionInvocation
 
 	private int funcNo;
 
-	private Map paraMap;
-
 	private boolean executed;
 
 	private ResultVo resultVo;
@@ -51,9 +47,7 @@ public class BaseActionInvocation implements ActionInvocation
 
 	private Iterator<Interceptor> iterator;
 
-	private long start;
-
-	private long end;
+	private RequestParam requestParam;
 
 	public BaseActionInvocation(HttpServletRequest request, HttpServletResponse response)
 	{
@@ -61,7 +55,6 @@ public class BaseActionInvocation implements ActionInvocation
 		this.response = response;
 		this.executed = false;
 		this.resultVo = new ResultVo();
-		this.start = System.currentTimeMillis();
 		init();
 	}
 
@@ -75,7 +68,7 @@ public class BaseActionInvocation implements ActionInvocation
 		{
 			throw new CommonException(ErrorCode.EMPTY_ARGUMENT_ERROR, new String[] { "response" });
 		}
-		funcNo = RequestUtil.getInt(request, "funcNo");
+		funcNo = ConvertUtil.str2Int(request.getParameter("funcNo"));
 		if(funcNo == 0)
 		{
 			throw new CommonException(ErrorCode.EMPTY_ARGUMENT_ERROR, new String[] { "funcNo" });
@@ -87,7 +80,7 @@ public class BaseActionInvocation implements ActionInvocation
 		}
 
 		//初始化参数
-		this.paraMap = request.getParameterMap();
+		this.requestParam = new RequestParam(request);
 
 		//初始化拦截器
 		this.intercrptorList = functionItem.getInterceptors();
@@ -141,23 +134,22 @@ public class BaseActionInvocation implements ActionInvocation
 	}
 
 	@Override
-	public Map getParaMap()
+	public RequestParam getRequestParam()
 	{
-		return paraMap;
+		return requestParam;
 	}
 
 	private ResultVo invokeLast()
 	{
 		ResultVo resultVo;
-		int type = functionItem.getType();
-		switch(type)
+		String functionType = functionItem.getFunctionType();
+		if(Constant.FunctionType.LOCAL.equals(functionType))
 		{
-			case ControlConstant.FunctionType.LOCAL_CLASS_FUNCTION:
-				resultVo = invokeLocalClassFunction();
-				break;
-			case ControlConstant.FunctionType.THIRD_INTERFACE_FUNCTION:
-			default:
-				throw new CommonException(ErrorCode.NOT_SUPPORT_FUNCTION_TYPE_ERROR, new String[] { "type=" + type });
+			resultVo = invokeLocalClassFunction();
+		}
+		else
+		{
+			throw new CommonException(ErrorCode.NOT_SUPPORT_FUNCTION_TYPE_ERROR, new String[] { "type=" + functionType });
 		}
 		return resultVo;
 	}
@@ -177,12 +169,6 @@ public class BaseActionInvocation implements ActionInvocation
 		}
 
 		Function function = (Function) object;
-		ResultVo resultVo = function.execute(functionItem, request, response);
-		if(logger.isInfoEnabled())
-		{
-			end = System.currentTimeMillis();
-			logger.info("功能号[{}]调用时间为：" + (end - start) + "ms,返回的结果为：{}", funcNo, JsonUtil.toString(resultVo.getResultMap()));
-		}
-		return resultVo;
+		return function.execute(request, response, requestParam);
 	}
 }

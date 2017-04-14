@@ -1,7 +1,7 @@
 package com.truncate.base.function;
 
-import com.truncate.base.config.FunctionItem;
 import com.truncate.base.domain.ResultVo;
+import com.truncate.base.interceptor.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,5 +17,5 @@ import javax.servlet.http.HttpServletResponse;
 public interface Function
 {
 
-	ResultVo execute(FunctionItem functionItem, HttpServletRequest request, HttpServletResponse response);
+	ResultVo execute(HttpServletRequest request, HttpServletResponse response, RequestParam requestParam);
 }
