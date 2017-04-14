@@ -1,12 +1,17 @@
 package com.truncate.base.jdbc.dbsession;
 
+import com.truncate.base.constant.Constant;
+import com.truncate.base.domain.DataPage;
 import com.truncate.base.domain.DataRow;
 import com.truncate.base.jdbc.ConnectionManager;
-import com.truncate.base.jdbc.DatabaseType;
+import com.truncate.base.jdbc.DBSourceManager;
 import com.truncate.base.jdbc.JdbcException;
 import com.truncate.base.util.ConvertUtil;
+import com.truncate.base.util.SpringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -31,11 +36,17 @@ public class DBSessionImpl implements DBSession
 	private Connection connection;
 
 	//数据库类型
-	private DatabaseType databaseType;
+	private Constant.DatabaseType databaseType;
 
 	public DBSessionImpl(Connection connection)
 	{
 		this.connection = connection;
+		this.databaseType = ConnectionManager.getDatabaseType(connection);
+	}
+
+	public DBSessionImpl(String name)
+	{
+		this.connection = ConnectionManager.getConnection(name);
 		this.databaseType = ConnectionManager.getDatabaseType(connection);
 	}
 
@@ -78,7 +89,6 @@ public class DBSessionImpl implements DBSession
 	@Override
 	public DataRow queryMap(String sql, Object[] args)
 	{
-		long start = System.currentTimeMillis();
 		DataRow data = new DataRow();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
@@ -107,9 +117,6 @@ public class DBSessionImpl implements DBSession
 		{
 			closeResultSet(resultSet);
 			closePrepareStatement(preparedStatement);
-
-			long end = System.currentTimeMillis();
-			logCost(start, end, sql, args);
 		}
 		return data;
 	}
@@ -123,7 +130,6 @@ public class DBSessionImpl implements DBSession
 	@Override
 	public List<DataRow> queryList(String sql, Object[] args)
 	{
-		long start = System.currentTimeMillis();
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		List<DataRow> resultList = new ArrayList<DataRow>();
@@ -152,28 +158,29 @@ public class DBSessionImpl implements DBSession
 		{
 			closeResultSet(resultSet);
 			closePrepareStatement(preparedStatement);
-
-			long end = System.currentTimeMillis();
-			logCost(start, end, sql, args);
 		}
 		return resultList;
 	}
 
 	@Override
-	public List<DataRow> queryList(String sql, Object[] args, int starRow, int endRow)
+	public List<DataRow> queryList(String sql, Object[] args, int starRow, int rows)
 	{
-		int totalRows = queryInt(sql, args);
-		endRow = endRow < totalRows ? endRow : totalRows;
 		StringBuilder sqlBuilder = new StringBuilder();
-		if(databaseType == DatabaseType.MYSQL)
+		if(databaseType == Constant.DatabaseType.MYSQL)
 		{
 			sqlBuilder.append("SELECT * FROM ( ");
-			sqlBuilder.append(sql);
+			sql = sql.toUpperCase();
+			int tempIndex = sql.indexOf("ORDER BY");
+			if(tempIndex > 0)
+			{
+				sqlBuilder.append(sql.substring(0, tempIndex));
+			}
+			sqlBuilder.append(sql.substring(tempIndex));
+			sqlBuilder.append(" ) _T1 ");
 			sqlBuilder.append(" LIMIT ");
 			sqlBuilder.append(starRow);
 			sqlBuilder.append(" , ");
-			sqlBuilder.append(endRow);
-			sqlBuilder.append(" ) ");
+			sqlBuilder.append(rows);
 		}
 		return queryList(sqlBuilder.toString(), args);
 	}
@@ -181,9 +188,26 @@ public class DBSessionImpl implements DBSession
 	@Override
 	public List<DataRow> queryList(String sql, Object[] args, int rows)
 	{
-		int totalRows = queryInt(sql, args);
-		int endRow = rows < totalRows ? rows : totalRows;
-		return queryList(sql, args, 0, endRow);
+		return queryList(sql, args, 0, rows);
+	}
+
+	@Override
+	public DataPage queryPage(String sql, Object[] args, int currentPage, int numPerPage)
+	{
+		int totalRows = queryTotalRows(sql, args);
+		DataPage dataPage = new DataPage(currentPage, numPerPage, totalRows);
+		if(databaseType == Constant.DatabaseType.MYSQL)
+		{
+			List<DataRow> dataList = queryList(sql, args, dataPage.getStartRow(), numPerPage);
+			dataPage.setDataList(dataList);
+		}
+		return dataPage;
+	}
+
+	@Override
+	public DataPage queryPage(String sql, int currentPage, int numPerPage)
+	{
+		return queryPage(sql, null, currentPage, numPerPage);
 	}
 
 	@Override
@@ -234,7 +258,6 @@ public class DBSessionImpl implements DBSession
 	@Override
 	public String queryString(String sql, Object[] args)
 	{
-		long start = System.currentTimeMillis();
 		String value = "";
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
@@ -262,9 +285,6 @@ public class DBSessionImpl implements DBSession
 		{
 			closeResultSet(resultSet);
 			closePrepareStatement(preparedStatement);
-
-			long end = System.currentTimeMillis();
-			logCost(start, end, sql, args);
 		}
 		return value;
 	}
@@ -272,7 +292,6 @@ public class DBSessionImpl implements DBSession
 	@Override
 	public int update(String sql, Object[] args)
 	{
-		long start = System.currentTimeMillis();
 		PreparedStatement preparedStatement = null;
 		try
 		{
@@ -293,25 +312,21 @@ public class DBSessionImpl implements DBSession
 		finally
 		{
 			closePrepareStatement(preparedStatement);
-
-			long end = System.currentTimeMillis();
-			logCost(start, end, sql, args);
 		}
 	}
 
 	@Override
 	public int[] batchUpdate(String sql, Object[][] args)
 	{
-		long start = System.currentTimeMillis();
 		PreparedStatement preparedStatement = null;
 		try
 		{
 			preparedStatement = connection.prepareStatement(sql);
-			for(int i = 0; i < args.length; i++)
+			for(Object[] arg : args)
 			{
-				for(int j = 0; j < args[i].length; j++)
+				for(int j = 0; j < arg.length; j++)
 				{
-					preparedStatement.setObject(j + 1, args[i][j]);
+					preparedStatement.setObject(j + 1, arg[j]);
 				}
 				preparedStatement.addBatch();
 			}
@@ -326,9 +341,6 @@ public class DBSessionImpl implements DBSession
 		finally
 		{
 			closePrepareStatement(preparedStatement);
-
-			long end = System.currentTimeMillis();
-			logCost(start, end, sql, args);
 		}
 	}
 
@@ -357,8 +369,13 @@ public class DBSessionImpl implements DBSession
 		update(sqlBuilder.toString(), args);
 	}
 
-	@Override
-	public DataRow turnDataRow(ResultSet resultSet, ResultSetMetaData metaData)
+	private int queryTotalRows(String sql, Object[] args)
+	{
+		String sqlBuilder = "SELECT COUNT(*) FROM ( " + sql + " ) _TAB1";
+		return queryInt(sqlBuilder, args);
+	}
+
+	private DataRow turnDataRow(ResultSet resultSet, ResultSetMetaData metaData)
 	{
 		DataRow data = new DataRow();
 		try
@@ -367,13 +384,13 @@ public class DBSessionImpl implements DBSession
 			for(int i = 0; i < columnCount; i++)
 			{
 				String fieldName;
-				if(this.databaseType == DatabaseType.MYSQL)
+				if(this.databaseType == Constant.DatabaseType.MYSQL)
 				{
-					fieldName = metaData.getColumnLabel(i + 1);
+					fieldName = metaData.getColumnLabel(i + 1).toLowerCase();
 				}
 				else
 				{
-					fieldName = metaData.getColumnName(i + 1);
+					fieldName = metaData.getColumnName(i + 1).toLowerCase();
 				}
 
 				Object value = resultSet.getObject(fieldName);
@@ -426,22 +443,6 @@ public class DBSessionImpl implements DBSession
 			catch(SQLException e)
 			{
 				throw new JdbcException("关闭结果集失败!");
-			}
-		}
-	}
-
-	private void logCost(long start, long end, String sql, Object[] args)
-	{
-		long cost = end - start;
-		if(cost > 1000L)
-		{
-			logger.warn("SQL语句[{}]执行时间过长,参数:{},花费时间：{}ms.", new Object[] { sql, args == null ? "[]" : Arrays.toString(args), cost });
-		}
-		else
-		{
-			if(logger.isDebugEnabled())
-			{
-				logger.debug("执行SQL语句:[{}],参数:{},花费时间：{}ms.", new Object[] { sql, args == null ? "[]" : Arrays.toString(args), cost });
 			}
 		}
 	}

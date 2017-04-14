@@ -1,9 +1,8 @@
 package com.truncate.base.jdbc.dbsession;
 
+import com.truncate.base.domain.DataPage;
 import com.truncate.base.domain.DataRow;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.List;
 
 /**
@@ -35,9 +34,13 @@ public interface DBSession
 
 	List<DataRow> queryList(String sql, Object[] args);
 
-	List<DataRow> queryList(String sql, Object[] args, int starRow, int endRow);
+	List<DataRow> queryList(String sql, Object[] args, int starRow, int rows);
 
 	List<DataRow> queryList(String sql, Object[] args, int rows);
+
+	DataPage queryPage(String sql, Object[] args, int currentPage, int numPerPage);
+
+	DataPage queryPage(String sql, int currentPage, int numPerPage);
 
 	int queryInt(String sql);
 
@@ -57,9 +60,7 @@ public interface DBSession
 
 	int update(String sql, Object[] args);
 
-	int[] batchUpdate(String sql, Object[][] args);
-
 	void insert(String tableName, DataRow data);
 
-	DataRow turnDataRow(ResultSet resultSet, ResultSetMetaData metaData);
+	int[] batchUpdate(String sql, Object[][] args);
 }
