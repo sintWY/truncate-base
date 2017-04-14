@@ -1,5 +1,8 @@
 package com.truncate.base.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +19,9 @@ import java.util.Map;
 public class ResultVo
 {
 
-	private static final String DEFAULT_RESULT_KEY = "defaultResult";
+	private static final Logger logger = LoggerFactory.getLogger(ResultVo.class);
+
+	private static final String DEFAULT_RESULT_KEY = "default_result";
 
 	//结果集
 	private Map<String, Object> resultMap;
@@ -24,7 +29,7 @@ public class ResultVo
 	public ResultVo()
 	{
 		resultMap = new HashMap();
-		resultMap.put("error_no", "0");
+		resultMap.put("error_no", 0);
 		resultMap.put("error_message", "请求成功");
 	}
 
@@ -56,7 +61,17 @@ public class ResultVo
 	public void setResult(String key, DataRow dataRow)
 	{
 		List<DataRow> resultList = new ArrayList<DataRow>();
-		resultList.add(dataRow);
+		if(dataRow != null && !dataRow.isEmpty())
+		{
+			resultList.add(dataRow);
+		}
+		else
+		{
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("打包的结果集为空，请检查!");
+			}
+		}
 		setResult(key, resultList);
 	}
 
@@ -68,6 +83,28 @@ public class ResultVo
 	public void setResult(List resultList)
 	{
 		setResult(DEFAULT_RESULT_KEY, resultList);
+	}
+
+	public void setResult(DataPage dataPage)
+	{
+		setResult(DEFAULT_RESULT_KEY, dataPage);
+	}
+
+	public void setResult(String name, DataPage dataPage)
+	{
+		List<DataRow> tempList = new ArrayList<DataRow>();
+		DataRow dataRow = new DataRow();
+		dataRow.set("current_page", dataPage.getCurrentPage());
+		dataRow.set("total_page", dataPage.getTotalPages());
+		dataRow.set("num_per_page", dataPage.getNumPerPage());
+		dataRow.set("total_row", dataPage.getTotalRows());
+		tempList.add(dataRow);
+		List<DataRow> dataList = dataPage.getDataList();
+		if(dataList != null && !dataList.isEmpty())
+		{
+			tempList.addAll(dataList);
+		}
+		setResult(name, tempList);
 	}
 
 	public Map getResultMap()
