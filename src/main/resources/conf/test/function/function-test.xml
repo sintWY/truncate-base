@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="GB2312" ?>
+<fuctions>
+
+    <function id="10000" type="0" class="com.truncate.base.test.function.Function10000" description="测试查询map"/>
+    <function id="10001" type="0" class="com.truncate.base.test.function.Function10001" description="测试查询list"/>
+    <function id="10002" type="0" class="com.truncate.base.test.function.Function10002" description="测试查询datapage"/>
+</fuctions>

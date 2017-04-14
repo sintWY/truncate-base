@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+
+    <!--
+        initial-delay:表示第一次运行前需要延迟的时间，单位是毫秒
+        fixed-delay:表示从上一个任务完成到下一个任务开始的间隔, 单位是毫秒
+        fixed-rate:表示从上一个任务开始到下一个任务开始的间隔, 单位是毫秒
+                         （如果某次任务开始时上次任务还没有结束，那么在上次任务执行完成时，当前任务会立即执行）
+    -->
+
+    <!--<task:scheduler id="TestTask" pool-size="3"/>-->
+    <!--<task:scheduled-tasks scheduler="TestTask">-->
+    <!--cron 表达式触发-->
+    <!--<task:scheduled ref="BaseTestService" method="queryList" cron="0/5 * * * * *"/>-->
+    <!--间隔时间执行-->
+    <!--<task:scheduled ref="BaseTestService" method="queryList" fixed-delay="5000"/>-->
+    <!--</task:scheduled-tasks>-->
+
+</beans>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<functions>
+
+    <!--测试配置-->
+    <resource name="testFunction" ref="conf/test/function/function-test.xml"/>
+
+</functions>

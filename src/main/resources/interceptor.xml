@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interceptor-config>
+
+    <!--拦截器配置-->
+    <interceptors>
+        <iterceptor name="ParamInterceptor" class="com.truncate.base.interceptor.ParamInterceptor" description="参数拦截器"/>
+        <iterceptor name="TimeInterceptor" class="com.truncate.base.interceptor.TimeInterceptor" description="参数拦截器"/>
+        <iterceptor name="SecurityInterceptor" class="com.truncate.base.interceptor.SecurityInterceptor" description="参数拦截器"/>
+    </interceptors>
+
+    <!--拦截器栈配置-->
+    <interceptor-stacks>
+        <interceptor-stack name="DefaultInterceptorStack">
+            <item ref="TimeInterceptor"/>
+            <item ref="ParamInterceptor"/>
+        </interceptor-stack>
+        <interceptor-stack name="SecurityInterceptorStack">
+            <item ref="SecurityInterceptor"/>
+        </interceptor-stack>
+    </interceptor-stacks>
+
+    <!--默认拦截器栈-->
+    <default-interceptor-stack ref="DefaultInterceptorStack"/>
+
+    <!--拦截对象-->
+    <invoke-interceptor groupName="testFunction">
+        <!--引用拦截器栈-->
+        <!--<ref-interceptor-stack>LoggerInterceptorStack</ref-interceptor-stack>-->
+        <!--引用拦截器-->
+        <!--<ref-interceptor>SecurityInterceptor</ref-interceptor>-->
+        <!--过滤不需要拦截的功能号-->
+        <!--<filter-function></filter-function>-->
+    </invoke-interceptor>
+
+</interceptor-config>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<c3p0-config>
+    <db-source name="main">
+        <!--用户名-->
+        <property name="user">truncate</property>
+        <!--密码-->
+        <property name="password">truncate</property>
+        <!--驱动-->
+        <property name="driver">com.mysql.jdbc.Driver</property>
+        <!--数据库地址-->
+        <property name="url">jdbc:mysql://127.0.0.1:3306/wanggj</property>
+        <!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数 -->
+        <property name="acquireIncrement">1</property>
+        <!--初始化时获取十个连接，取值应在minPoolSize与maxPoolSize之间 -->
+        <property name="initialPoolSize">1</property>
+        <!--连接池中保留的最小连接数 -->
+        <property name="minPoolSize">1</property>
+        <!--连接池中保留的最大连接数 -->
+        <property name="maxPoolSize">10</property>
+        <!--获取连接超时时间-->
+        <property name="checkoutTimeout">1000</property>
+        <!--JDBC的标准参数，用以控制数据源内加载的PreparedStatements数量。但由于预缓存的statements属于单个connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素。如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 0-->
+        <property name="maxStatements">20</property>
+        <!--maxStatementsPerConnection定义了连接池内单个连接所拥有的最大缓存statements数。Default: 0 -->
+        <property name="maxStatementsPerConnection">5</property>
+        <!--连接的最大空闲时间-->
+        <property name="maxIdleTime">600</property>
+        <!--检查所有连接池中的空闲连接间隔时间-->
+        <property name="idleConnectionTestPeriod">600</property>
+    </db-source>
+</c3p0-config>
